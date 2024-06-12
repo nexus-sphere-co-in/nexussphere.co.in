@@ -8,7 +8,7 @@
 			"name": "S.DAO",
 			"path": "./apps/NEXUS_SPHERE-S.DAO",
 		},
-    {
+		{
 			"name": "Landing",
 			"path": "./apps/NEXUS_SPHERE-Landing",
 		},
@@ -17,70 +17,54 @@
 			"path": "./",
 		},
 	],
-    "settings": {
-        "eslint.validate": ["javascript", "javascriptreact", "svelte"],
-        "editor.formatOnSave": true,
-        "git.ignoreLimitWarning": true,
-        "editor.wordWrapColumn": 100,
-        "editor.renderWhitespace": "boundary",
-        "editor.snippetSuggestions": "bottom",
-        "files.exclude": {
-          "**/.direnv": true,
-          "**/.pytest_cache": true,
-          // "**/node_modules": true,
-          "**/.vercel": true,
-          "**/__pycache__": true
-        },
-        "[markdown]": {
-          "editor.formatOnSave": false
-        },
-        "debug.allowBreakpointsEverywhere": true,
-        "solidity-va.uml.actors.enable": true,
-        "workbench.editor.labelFormat": "short",
-        "solidity.formatter": "prettier",
-        "editor.suggestSelection": "recentlyUsedByPrefix",
-        "prettier.documentSelectors": ["**/*.svelte"],
-        "[svelte]": {
-          "editor.defaultFormatter": "svelte.svelte-vscode",
-          "editor.formatOnSave": true
-        },
-        "[solidity]": {
-          "editor.defaultFormatter": "esbenp.prettier-vscode"
-        },
-        // "liveServer.settings.multiRootWorkspaceName": "lively-web",
-        "javascript.suggest.completeFunctionCalls": true,
-        "typescript.suggest.completeFunctionCalls": true,
-        "[python]": {
-          "editor.defaultFormatter": "ms-python.black-formatter"
-        },
-        "python.formatting.provider": "none",
-        "search.useIgnoreFiles": false,
-        // "slither.scanningDirectories": "contracts-only",
-        // "slither.solcPath": "",
-        // "slither.hiddenDetectors": [],
-        "testing.automaticallyOpenPeekView": "never",
-        // "vitest.disabledWorkspaceFolders": [
-        //   "server",
-        //   "contracts",
-        //   "cdk",
-        //   "lively",
-        //   "email",
-        //   "cms-scratch",
-        //   "video",
-        //   "scripts"
-        // ],
-        "files.watcherExclude": {
-          "**/.svelte-kit/**": true
-        },
-        "search.exclude": {
-          "**/.svelte-kit": true
-        },
-        "cSpell.words": ["typechain"]
-      },
-      "extensions": {
-        "recommendations": [
-          "fabiospampinato.vscode-debug-launcher",
-          "ms-vsliveshare.vsliveshare"
-        ]
-      }
+	"settings": {
+		"eslint.validate": ["javascript", "svelte"],
+		"editor.formatOnSave": true,
+		"git.ignoreLimitWarning": true,
+		"editor.wordWrapColumn": 100,
+		"editor.renderWhitespace": "boundary",
+		"editor.snippetSuggestions": "bottom",
+		"files.exclude": {
+			"**/.direnv": true,
+			// "**/node_modules": true,
+			// "**/.vercel": true,
+		},
+		"[markdown]": {
+			"editor.formatOnSave": false,
+		},
+		"debug.allowBreakpointsEverywhere": true,
+		"solidity-va.uml.actors.enable": true,
+		"workbench.editor.labelFormat": "short",
+		"solidity.formatter": "prettier",
+		"editor.suggestSelection": "recentlyUsedByPrefix",
+		"prettier.documentSelectors": ["**/*.svelte"],
+		"[svelte]": {
+			"editor.defaultFormatter": "svelte.svelte-vscode",
+			"editor.formatOnSave": true,
+		},
+		"[solidity]": {
+			"editor.defaultFormatter": "esbenp.prettier-vscode",
+		},
+		"javascript.suggest.completeFunctionCalls": true,
+		"typescript.suggest.completeFunctionCalls": true,
+		"python.formatting.provider": "none",
+		"search.useIgnoreFiles": false,
+		// "slither.scanningDirectories": "contracts-only",
+		// "slither.solcPath": "",
+		// "slither.hiddenDetectors": [],
+		"testing.automaticallyOpenPeekView": "never",
+		"files.watcherExclude": {
+			"**/.svelte-kit/**": true,
+		},
+		"search.exclude": {
+			"**/.svelte-kit": true,
+		},
+		"cSpell.words": ["typechain"],
+	},
+	"extensions": {
+		"recommendations": [
+			"fabiospampinato.vscode-debug-launcher",
+			"ms-vsliveshare.vsliveshare",
+		],
+	},
 }
