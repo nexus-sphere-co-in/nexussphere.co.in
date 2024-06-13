@@ -6,7 +6,7 @@ import { get } from 'svelte/store';
 const { ethereum } = window;
 
 const provider = new ethers.BrowserProvider(ethereum);
-const signer = provider.getSigner();
+const signer = await provider.getSigner();
 
 const setGlobalState = (key: string, value: unknown) =>
 	globalState.update((state) => ({ ...state, [key]: value }));

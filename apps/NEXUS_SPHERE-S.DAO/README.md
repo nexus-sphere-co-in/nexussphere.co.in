@@ -1,38 +1,10 @@
-# create-svelte
+# S.DAO Page in Svelte
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/main/packages/create-svelte).
+## Generating Typechain Factories
+1. Go into `src/lib/abis` and run `pnpx typechain --target=ethers-v6 --out-dir v6 '**/*.json'`.
+   (JSH: Note, this will be turned into a package.json script later).
+2. Generated factories will be importable with `$factory/NexusDAO__factory` as an example.
 
-## Creating a project
 
-If you're seeing this, you've probably already done this step. Congrats!
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
-
-# create a new project in my-app
-npm create svelte@latest my-app
-```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+Read the [TypeChain](https://github.com/dethcrypto/TypeChain) documentation for more information.
