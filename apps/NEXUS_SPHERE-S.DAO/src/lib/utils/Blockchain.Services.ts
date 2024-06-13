@@ -1,38 +1,42 @@
 import { ethers } from 'ethers';
-import { setGlobalState, getGlobalState } from './store';
-import abi from './abis/NexusDAO.json';
+import { globalState } from '$stores/global';
+import abi from '$abis/NexusDAO.json';
+import { get } from 'svelte/store';
 
 const { ethereum } = window;
 
-const provider = new ethers.providers.Web3Provider(ethereum);
+const provider = new ethers.BrowserProvider(ethereum);
 const signer = provider.getSigner();
 
-const connectWallet = async () => {
+const setGlobalState = (key: string, value: unknown) =>
+	globalState.update((state) => ({ ...state, [key]: value }));
+
+const connectWallet = async (): Promise<void> => {
 	try {
 		if (!ethereum) return alert('Please install Metamask');
-		const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
-		setGlobalState('connectedAccount', accounts[0].toLowerCase());
+		const accounts: string[] = await ethereum.request({ method: 'eth_requestAccounts' });
+		globalState.update((state) => ({ ...state, connectedAccount: accounts[0].toLowerCase() }));
 	} catch (error) {
 		reportError(error);
 	}
 };
 
-const isWallectConnected = async () => {
+const isWalletConnected = async (): Promise<void> => {
 	try {
 		if (!ethereum) return alert('Please install Metamask');
-		const accounts = await ethereum.request({ method: 'eth_accounts' });
+		const accounts: string[] = await ethereum.request({ method: 'eth_accounts' });
 
 		window.ethereum.on('chainChanged', () => {
 			window.location.reload();
 		});
 
 		window.ethereum.on('accountsChanged', async () => {
-			setGlobalState('connectedAccount', accounts[0].toLowerCase());
-			await isWallectConnected();
+			globalState.update((state) => ({ ...state, connectedAccount: accounts[0].toLowerCase() }));
+			await isWalletConnected();
 		});
 
 		if (accounts.length) {
-			setGlobalState('connectedAccount', accounts[0].toLowerCase());
+			globalState.update((state) => ({ ...state, connectedAccount: accounts[0].toLowerCase() }));
 		} else {
 			alert('Please connect wallet.');
 			console.log('No accounts found.');
@@ -42,12 +46,12 @@ const isWallectConnected = async () => {
 	}
 };
 
-const getEthereumContract = async () => {
-	const connectedAccount = getGlobalState('connectedAccount');
+const getEthereumContract = async (): Promise<ethers.Contract | null> => {
+	const connectedAccount = get(globalState).connectedAccount;
 
 	if (connectedAccount) {
 		const network = await provider.getNetwork();
-		const networkData = abi.networks[network.chainId];
+		const networkData = abi.networks[network.chainId.toString()];
 		if (networkData) {
 			const contract = new ethers.Contract(networkData.address, abi.abi, signer);
 			return contract;
@@ -55,75 +59,109 @@ const getEthereumContract = async () => {
 			return null;
 		}
 	} else {
-		return getGlobalState('contract');
+		return get(globalState).contract;
 	}
 };
 
-const performContribute = async (amount: string) => {
+const performContribute = async (amount: string): Promise<void> => {
 	try {
-		amount = ethers.utils.parseEther(amount);
+		const etherAmount = ethers.parseEther(amount);
 		const contract = await getEthereumContract();
-		const account = getGlobalState('connectedAccount');
+		const account = get(globalState).connectedAccount;
 
-		await contract.contribute({ from: account, value: amount });
+		if (contract) {
+			await contract.contribute({ from: account, value: etherAmount });
+		}
 
 		window.location.reload();
 	} catch (error) {
 		reportError(error);
-		return error;
 	}
 };
 
-const getInfo = async () => {
+const getInfo = async (): Promise<void> => {
 	try {
 		if (!ethereum) return alert('Please install Metamask');
 
 		const contract = await getEthereumContract();
-		const connectedAccount = getGlobalState('connectedAccount');
-		const isStakeholder = await contract.isStakeholder({ from: connectedAccount });
-		const balance = await contract.daoBalance();
-		const mybalance = await contract.getBalance({ from: connectedAccount });
+		const connectedAccount = get(globalState).connectedAccount;
+		if (contract && connectedAccount) {
+			const isStakeholder = await contract.isStakeholder({ from: connectedAccount });
+			const balance = await contract.daoBalance();
+			const mybalance = await contract.getBalance({ from: connectedAccount });
 
-		setGlobalState('balance', ethers.utils.formatEther(balance));
-		setGlobalState('mybalance', ethers.utils.formatEther(mybalance));
-		setGlobalState('isStakeholder', isStakeholder);
+			globalState.update((state) => ({ ...state, balance: ethers.formatEther(balance) }));
+			globalState.update((state) => ({ ...state, mybalance: ethers.formatEther(mybalance) }));
+			globalState.update((state) => ({ ...state, isStakeholder }));
+		}
 	} catch (error) {
 		reportError(error);
 	}
 };
 
-const raiseProposal = async ({ title, description, beneficiary, amount }) => {
+interface Proposal {
+	title: string;
+	description: string;
+	beneficiary: string;
+	amount: string;
+}
+
+const raiseProposal = async ({
+	title,
+	description,
+	beneficiary,
+	amount
+}: Proposal): Promise<void> => {
 	try {
-		amount = ethers.utils.parseEther(amount);
+		const etherAmount = ethers.parseEther(amount);
 		const contract = await getEthereumContract();
-		const account = getGlobalState('connectedAccount');
+		const account = get(globalState).connectedAccount;
 
-		await contract.createProposal(title, description, beneficiary, amount, { from: account });
-
-		window.location.reload();
+		if (contract && account) {
+			await contract.createProposal(title, description, beneficiary, etherAmount, {
+				from: account
+			});
+			window.location.reload();
+		}
 	} catch (error) {
 		reportError(error);
-		return error;
 	}
 };
 
-const getProposals = async () => {
+const getProposals = async (): Promise<void> => {
 	try {
 		if (!ethereum) return alert('Please install Metamask');
 
 		const contract = await getEthereumContract();
-		const proposals = await contract.getProposals();
-		setGlobalState('proposals', structuredProposals(proposals));
+		if (contract) {
+			const proposals = await contract.getProposals();
+			setGlobalState('proposals', structuredProposals(proposals));
+		}
 	} catch (error) {
 		reportError(error);
 	}
 };
 
-const structuredProposals = (proposals) => {
+interface StructuredProposal {
+	id: string;
+	amount: string;
+	title: string;
+	description: string;
+	paid: boolean;
+	passed: boolean;
+	proposer: string;
+	upvotes: number;
+	downvotes: number;
+	beneficiary: string;
+	executor: string;
+	duration: number;
+}
+
+const structuredProposals = (proposals: any[]): StructuredProposal[] => {
 	return proposals
 		.map((proposal) => ({
 			id: proposal.id,
-			amount: ethers.utils.formatEther(proposal.amount),
+			amount: ethers.formatEther(proposal.amount),
 			title: proposal.title,
 			description: proposal.description,
 			paid: proposal.paid,
@@ -138,55 +176,60 @@ const structuredProposals = (proposals) => {
 		.reverse();
 };
 
-const getProposal = async (id) => {
+const getProposal = async (id: string): Promise<StructuredProposal | undefined> => {
 	try {
-		const proposals = getGlobalState('proposals');
+		const proposals = get(globalState).proposals as StructuredProposal[];
 		return proposals.find((proposal) => proposal.id === id);
 	} catch (error) {
 		reportError(error);
 	}
 };
 
-const voteOnProposal = async (proposalId, supported) => {
+const voteOnProposal = async (proposalId: string, supported: boolean): Promise<void> => {
 	try {
 		const contract = await getEthereumContract();
-		const account = getGlobalState('connectedAccount');
-		await contract.performVote(proposalId, supported, { from: account });
-
-		window.location.reload();
+		const account = get(globalState).connectedAccount;
+		if (contract && account) {
+			await contract.performVote(proposalId, supported, { from: account });
+			window.location.reload();
+		}
 	} catch (error) {
 		reportError(error);
 	}
 };
 
-const listVoters = async (id) => {
+const listVoters = async (id: string): Promise<any> => {
 	try {
 		const contract = await getEthereumContract();
-		const votes = await contract.getVotesOf(id);
-		return votes;
+		if (contract) {
+			const votes = await contract.getVotesOf(id);
+			return votes;
+		}
 	} catch (error) {
 		reportError(error);
 	}
 };
 
-const payoutBeneficiary = async (id) => {
+const payoutBeneficiary = async (id: string): Promise<void> => {
 	try {
 		const contract = await getEthereumContract();
-		const account = getGlobalState('connectedAccount');
-		await contract.payBeneficiary(id, { from: account });
-		window.location.reload();
+		const account = get(globalState).connectedAccount;
+		if (contract && account) {
+			await contract.payBeneficiary(id, { from: account });
+			window.location.reload();
+		}
 	} catch (error) {
 		reportError(error);
 	}
 };
 
-const reportError = (error) => {
-	console.log(JSON.stringify(error), 'red');
+const reportError = (error: any): void => {
+	console.error(JSON.stringify(error), 'red');
 	throw new Error('No ethereum object.');
 };
 
 export {
-	isWallectConnected,
+	isWalletConnected,
 	connectWallet,
 	performContribute,
 	getInfo,

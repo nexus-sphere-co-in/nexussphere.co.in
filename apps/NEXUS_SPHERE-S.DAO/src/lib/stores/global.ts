@@ -2,12 +2,12 @@ import { writable } from 'svelte/store';
 
 export interface GlobalState {
 	createModal: 'scale-0';
-	connectedAccount: '';
+	connectedAccount: string;
 	contract: null;
 	proposals: [];
 	isStakeholder: false;
-	balance: 0;
-	mybalance: 0;
+	balance: string;
+	mybalance: string;
 }
 
 export const globalState = writable<GlobalState>({
@@ -16,6 +16,6 @@ export const globalState = writable<GlobalState>({
 	contract: null,
 	proposals: [],
 	isStakeholder: false,
-	balance: 0,
-	mybalance: 0
+	balance: '0',
+	mybalance: '0'
 });
